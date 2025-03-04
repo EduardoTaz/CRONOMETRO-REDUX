@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   tempo: 0,
@@ -6,7 +6,7 @@ const initialState = {
 };
 
 const cronometroSlice = createSlice({
-  name: "cronometro",
+  name: 'cronometro',
   initialState,
   reducers: {
     start: (state) => {
@@ -20,9 +20,7 @@ const cronometroSlice = createSlice({
       state.taRodando = false;
     },
     tick: (state) => {
-      if (state.taRodando) {
-        state.tempo += 1;
-      }
+      state.tempo += 1;
     },
   },
 });
