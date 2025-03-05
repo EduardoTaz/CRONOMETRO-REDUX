@@ -1,44 +1,53 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { start, stop, reset, tick } from '../redux/cronometroSlice';
+import { increment, decrement, reset, setTime } from '../redux/counterSlice';
 import { RootState } from '../redux/store';
 
 export default function ScreenA({ navigation }) {
     const dispatch = useDispatch();
-    const tempo = useSelector((state: RootState) => state.cronometro.tempo);
-    const taRodando = useSelector((state: RootState) => state.cronometro.taRodando);
-    
-    const intervaloRef = useRef<NodeJS.Timeout | null>(null);
+
+    const incremento = useSelector((state: RootState) => state.counter.value);
+    const tempo = useSelector((state: RootState) => state.counter.time);
+    const [taRodando, setTaRodando] = useState(false);
 
     useEffect(() => {
-        if (taRodando && !intervaloRef.current) {
-            intervaloRef.current = setInterval(() => {
-                dispatch(tick());
+        let intervalo;
+        if (taRodando) {
+            intervalo = setInterval(() => {
+                dispatch(setTime(tempo + incremento)); // ✅ Correção aplicada
             }, 1000);
+        } else {
+            clearInterval(intervalo);
         }
-
-        return () => {
-            if (intervaloRef.current) {
-                clearInterval(intervaloRef.current);
-                intervaloRef.current = null;
-            }
-        };
-    }, [taRodando, dispatch]);
+        return () => clearInterval(intervalo);
+    }, [taRodando, incremento, tempo, dispatch]); // Agora observa `tempo` corretamente
 
     return (
         <View style={styles.container}>
             <Text style={styles.timer}>{new Date(tempo * 1000).toISOString().substr(11, 8)}</Text>
 
             <View style={styles.buttons}>
-                <TouchableOpacity onPress={() => dispatch(start())} style={styles.button}>
+                <TouchableOpacity onPress={() => setTaRodando(true)} style={styles.button}>
                     <Text style={styles.buttonText}>Iniciar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => dispatch(stop())} style={styles.button}>
+                <TouchableOpacity onPress={() => setTaRodando(false)} style={styles.button}>
                     <Text style={styles.buttonText}>Parar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => dispatch(reset())} style={styles.button}>
+                <TouchableOpacity onPress={() => { dispatch(setTime(0)); setTaRodando(false); }} style={styles.button}>
                     <Text style={styles.buttonText}>Resetar</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.buttons}>
+                <TouchableOpacity onPress={() => dispatch(increment())} style={styles.button}>
+                    <Text style={styles.buttonText}>+</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => dispatch(decrement())} style={styles.button}>
+                    <Text style={styles.buttonText}>-</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => dispatch(reset())} style={styles.button}>
+                    <Text style={styles.buttonText}>Reset</Text>
                 </TouchableOpacity>
             </View>
 
@@ -46,11 +55,9 @@ export default function ScreenA({ navigation }) {
                 <Text style={styles.buttonText}>Ir para tela B</Text>
             </TouchableOpacity>
 
-            <View style={styles.container}>
-              <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Home')}>
+            <TouchableOpacity onPress={() => navigation.replace('Home')} style={styles.button}>
                 <Text style={styles.buttonText}>Voltar para página inicial</Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 }
