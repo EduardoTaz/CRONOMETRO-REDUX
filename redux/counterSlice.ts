@@ -1,14 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  value: 1,
-  time: 0, // ✅ Estado global para o tempo do cronômetro
+  value: 1, // usa ele para se tornar nosso valor padrão incremento
+  time: 0, // tempo padrão
 };
 
 const counterSlice = createSlice({
   name: 'counter',
   initialState,
-  reducers: {
+  reducers: { // objeto chamado "reducers" que contém funções para manipular estado
     increment: (state) => {
       state.value += 1;
     },
@@ -21,7 +21,7 @@ const counterSlice = createSlice({
       state.value = 1;
     },
     setTime: (state, action) => { 
-      state.time = action.payload; // ✅ Atualiza o tempo globalmente
+      state.time = action.payload; 
     }
   },
 });
